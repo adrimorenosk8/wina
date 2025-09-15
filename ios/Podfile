@@ -1,7 +1,7 @@
-platform :ios, '15.0'   # <- antes estaba en 13.0
-
-
+# CocoaPods analytics is disabled to avoid spamming
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
+
+platform :ios, '12.0'  # súbelo si tu proyecto lo requiere
 
 project 'Runner', {
   'Debug' => :debug,
@@ -9,9 +9,19 @@ project 'Runner', {
   'Release' => :release,
 }
 
-# Localiza el SDK de Flutter en Codemagic
-flutter_root = "/Users/builder/programs/flutter"
-require File.expand_path(File.join(flutter_root, 'packages', 'flutter_tools', 'bin', 'podhelper'))
+def flutter_root
+  generated_xcode_build_settings_path = File.expand_path(File.join('..', 'Flutter', 'Generated.xcconfig'), __FILE__)
+  unless File.exist?(generated_xcode_build_settings_path)
+    raise "#{generated_xcode_build_settings_path} must exist. If you're running pod install manually, make sure `flutter pub get` was run first."
+  end
+  File.foreach(generated_xcode_build_settings_path) do |line|
+    matches = line.match(/FLUTTER_ROOT\=(.*)/)
+    return matches[1] if matches
+  end
+  raise "FLUTTER_ROOT not found. Try running `flutter pub get`."
+end
+
+require File.expand_path(File.join(flutter_root, 'packages', 'flutter_tools', 'bin', 'podhelper.rb'))
 
 flutter_ios_podfile_setup
 
